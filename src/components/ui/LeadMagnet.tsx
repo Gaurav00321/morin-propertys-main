@@ -1,0 +1,128 @@
+'use client';
+
+import React, { useState, useEffect, FormEvent } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Send, Phone, User, CheckCircle2 } from 'lucide-react';
+
+export function LeadMagnet() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+
+  useEffect(() => {
+    const hasSeenLeadMagnet = localStorage.getItem('hasSeenLeadMagnet');
+    if (!hasSeenLeadMagnet) {
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    localStorage.setItem('hasSeenLeadMagnet', 'true');
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    console.log('Lead captured:', { name, phone });
+    setIsSubmitted(true);
+    localStorage.setItem('hasSeenLeadMagnet', 'true');
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 3000);
+  };
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <div key="lead-magnet-popup" className="fixed inset-0 z-[100] flex items-center justify-center px-4 pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-brand-primary/20 backdrop-blur-sm pointer-events-auto"
+            onClick={handleClose}
+          />
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-md bg-white p-8 pointer-events-auto shadow-hover overflow-hidden rounded-2xl border border-brand-primary/10"
+          >
+            <button
+              type="button"
+              onClick={handleClose}
+              className="absolute top-4 right-4 p-2 text-brand-primary/60 hover:text-brand-primary transition-all z-30"
+              aria-label="Close popup"
+            >
+              <X size={20} />
+            </button>
+
+            {isSubmitted ? (
+              <div className="text-center py-8">
+                <div className="w-20 h-20 rounded-full bg-brand-accent/20 flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle2 size={40} className="text-brand-accent" />
+                </div>
+                <h2 className="font-serif font-bold text-2xl text-text-primary mb-2">Thank You!</h2>
+                <p className="text-text-secondary">Our property expert will call you shortly to help with your search.</p>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-brand-secondary/20 flex items-center justify-center">
+                    <Send size={24} className="text-brand-secondary" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif font-bold text-xl text-brand-primary">Get Exclusive Property Fast-Tracks</h2>
+                    <p className="text-text-secondary text-sm">Join 325+ families who found their dream home with us.</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="relative">
+                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
+                    <input
+                      type="text"
+                      placeholder="Your Full Name *"
+                      className="input pl-12"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </div>
+                  <div className="relative">
+                    <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
+                    <input
+                      type="tel"
+                      placeholder="Mobile Number *"
+                      className="input pl-12"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn-primary w-full justify-center !py-3.5 mt-2 text-base shadow-cta"
+                  >
+                    Get a Call Back <Send size={18} />
+                  </button>
+                  <p className="text-[10px] text-text-muted text-center mt-4">
+                    By clicking, you agree to receive property updates. We respect your privacy.
+                  </p>
+                </form>
+              </div>
+            )}
+
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 blur-[60px] rounded-full -translate-y-1/2 translate-x-1/2" />
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
