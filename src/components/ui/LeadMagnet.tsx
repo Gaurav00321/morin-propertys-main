@@ -11,7 +11,7 @@ export function LeadMagnet() {
   const [phone, setPhone] = useState('');
 
   useEffect(() => {
-    const hasSeenLeadMagnet = localStorage.getItem('hasSeenLeadMagnet');
+    const hasSeenLeadMagnet = sessionStorage.getItem('hasSeenLeadMagnet');
     if (!hasSeenLeadMagnet) {
       const timer = setTimeout(() => {
         setIsVisible(true);
@@ -22,14 +22,14 @@ export function LeadMagnet() {
 
   const handleClose = () => {
     setIsVisible(false);
-    localStorage.setItem('hasSeenLeadMagnet', 'true');
+    sessionStorage.setItem('hasSeenLeadMagnet', 'true');
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     console.log('Lead captured:', { name, phone });
     setIsSubmitted(true);
-    localStorage.setItem('hasSeenLeadMagnet', 'true');
+    sessionStorage.setItem('hasSeenLeadMagnet', 'true');
     setTimeout(() => {
       setIsVisible(false);
     }, 3000);

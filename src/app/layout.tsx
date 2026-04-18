@@ -1,19 +1,19 @@
 import type { Metadata, Viewport } from 'next'
-import { Playfair_Display, DM_Sans } from 'next/font/google'
+import { Cormorant_Garamond, Jost } from 'next/font/google'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 import { WhatsAppFAB } from '@/components/ui/WhatsAppFAB'
 import { PhoneCallFAB } from '@/components/ui/PhoneCallFAB'
 import { LeadMagnet } from '@/components/ui/LeadMagnet'
 
-const playfair = Playfair_Display({
+const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
   variable: '--font-serif',
   display: 'swap',
-  weight: ['400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600', '700'],
 })
 
-const dmSans = DM_Sans({
+const jost = Jost({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
@@ -63,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const gaId = process.env.NEXT_PUBLIC_GA_ID
 
   return (
-    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
       <head>
         <script
           type="application/ld+json"
