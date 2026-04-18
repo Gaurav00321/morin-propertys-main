@@ -150,8 +150,10 @@ export function Header() {
             {/* Mobile Hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className={`lg:hidden z-10 p-2 rounded-xl transition-colors ${
-                scrolled ? 'text-brand-primary' : 'text-white'
+              className={`lg:hidden z-10 p-2 rounded-xl transition-all ${
+                mobileOpen || scrolled
+                  ? 'text-brand-primary'
+                  : 'text-white bg-black/20 backdrop-blur-sm'
               }`}
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             >
