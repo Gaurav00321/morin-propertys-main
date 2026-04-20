@@ -1,20 +1,37 @@
 'use client'
 import { motion } from 'framer-motion'
-import { CheckCircle2, MessageCircle } from 'lucide-react'
-import { getWhatsAppUrl } from '@/lib/utils'
+import Link from 'next/link'
+import { Shield, Handshake, Landmark, MapPin, ArrowRight, Quote } from 'lucide-react'
+import Image from 'next/image'
 
 const reasons = [
-  '325+ happy families served across Vadodara',
-  'Legally verified, RERA-compliant properties',
-  'End-to-end support — from search to possession',
-  'Trusted banking partnerships for seamless home loans',
+  {
+    icon: Shield,
+    title: 'RERA Verified Listings Only',
+    desc: 'Every property is legally verified for complete peace of mind.',
+  },
+  {
+    icon: Handshake,
+    title: 'End-to-End Guided Process',
+    desc: "From first search to final registration — we're with you.",
+  },
+  {
+    icon: Landmark,
+    title: 'Trusted Banking Partners',
+    desc: 'Home loans with the best rates through 10+ bank partnerships.',
+  },
+  {
+    icon: MapPin,
+    title: 'Deep Local Expertise',
+    desc: '5+ years of deep Vadodara market knowledge at your service.',
+  },
 ]
 
 export function WhyChooseUs() {
   return (
-    <section className="py-16 md:py-24 bg-white overflow-hidden">
+    <section className="py-20 md:py-28 bg-white overflow-hidden">
       <div className="section-container">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Image Side */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -23,20 +40,26 @@ export function WhyChooseUs() {
             transition={{ duration: 0.6 }}
             className="relative"
           >
-            <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-accent" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white/80">
-                  <div className="font-serif font-bold text-6xl mb-2">325+</div>
-                  <div className="text-lg">Happy Families</div>
-                </div>
-              </div>
+            <div className="relative rounded-3xl overflow-hidden aspect-[4/3]">
+              <Image
+                src="/images/gallery-images/6.jpg"
+                alt="Morin Property team assisting a family"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/40 to-transparent" />
             </div>
             {/* Floating card */}
-            <div className="absolute -bottom-6 -right-4 md:right-8 bg-white rounded-2xl shadow-card-hover p-5 max-w-[200px]">
-              <div className="font-serif font-bold text-2xl text-brand-primary">5+ Years</div>
-              <div className="text-text-secondary text-sm">of Trusted Service</div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="absolute -bottom-6 -right-4 md:right-8 bg-white rounded-2xl shadow-card-hover p-6 max-w-[200px] border border-border/50"
+            >
+              <div className="font-mono font-bold text-3xl text-brand-secondary">325+</div>
+              <div className="text-text-secondary text-sm mt-1">Happy families served</div>
+            </motion.div>
           </motion.div>
 
           {/* Text Side */}
@@ -58,24 +81,40 @@ export function WhyChooseUs() {
               their property journey.
             </p>
 
-            <ul className="space-y-4 mb-8">
-              {reasons.map((reason) => (
-                <li key={reason} className="flex items-start gap-3">
-                  <CheckCircle2 size={22} className="text-brand-accent flex-shrink-0 mt-0.5" />
-                  <span className="text-text-primary font-medium">{reason}</span>
-                </li>
+            {/* Reason Tiles */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+              {reasons.map((reason, i) => (
+                <motion.div
+                  key={reason.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 + i * 0.1 }}
+                  className="flex items-start gap-3 p-4 rounded-xl bg-brand-light hover:bg-brand-secondary/5 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-brand-secondary/10 flex items-center justify-center shrink-0">
+                    <reason.icon size={20} className="text-brand-secondary" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sm text-text-primary">{reason.title}</div>
+                    <div className="text-text-muted text-xs mt-0.5">{reason.desc}</div>
+                  </div>
+                </motion.div>
               ))}
-            </ul>
+            </div>
 
-            <a
-              href={getWhatsAppUrl('Hi! I would like to talk to an expert about properties in Vadodara.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-whatsapp"
-            >
-              <MessageCircle size={18} />
-              Talk to an Expert
-            </a>
+            {/* Founder Quote */}
+            <div className="relative pl-6 border-l-2 border-brand-secondary/30 mb-8">
+              <Quote size={24} className="text-brand-secondary/20 absolute -left-3 -top-1" />
+              <p className="text-text-secondary italic text-[15px] leading-relaxed">
+                &ldquo;We don&apos;t close deals. We open doors to the life you&apos;ve been building toward.&rdquo;
+              </p>
+              <p className="text-text-primary font-semibold text-sm mt-2">— Morin Property Team</p>
+            </div>
+
+            <Link href="/about" className="btn-charcoal">
+              Meet Our Team <ArrowRight size={16} />
+            </Link>
           </motion.div>
         </div>
       </div>

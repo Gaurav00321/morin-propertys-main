@@ -26,7 +26,7 @@ const services = [
 
 export function ServicesStrip() {
   return (
-    <section className="py-16 md:py-24 bg-brand-light">
+    <section className="py-20 md:py-28 bg-white">
       <div className="section-container">
         <div className="text-center mb-12 lg:mb-16">
           <p className="section-eyebrow justify-center">Our Services</p>
@@ -49,10 +49,10 @@ export function ServicesStrip() {
             >
               <Link href={service.href} className="group block h-full">
                 <div className="card h-full p-8 flex flex-col !rounded-2xl border border-transparent hover:border-brand-secondary/20">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-primary/10 flex items-center justify-center mb-6 group-hover:bg-brand-secondary/10 transition-colors">
-                    <service.icon size={26} className="text-brand-primary group-hover:text-brand-secondary transition-colors" />
+                  <div className="w-14 h-14 rounded-2xl bg-brand-secondary/10 flex items-center justify-center mb-6 group-hover:bg-brand-secondary/20 transition-colors">
+                    <service.icon size={26} className="text-brand-secondary" />
                   </div>
-                  <h3 className="font-serif font-bold text-xl text-text-primary mb-3 group-hover:text-brand-primary transition-colors">
+                  <h3 className="font-serif font-bold text-xl text-text-primary mb-3 group-hover:text-brand-secondary transition-colors">
                     {service.title}
                   </h3>
                   <p className="text-text-secondary text-[15px] leading-relaxed mb-6 flex-1">

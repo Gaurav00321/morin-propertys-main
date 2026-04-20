@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: Request) {
   try {
@@ -9,7 +10,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Name and phone are required' }, { status: 400 })
     }
 
-    // Send email via Resend if API key is configured
+    // 1. Log lead in Supabase database
+    const { error: dbError } = await supabase.from('leads').insert([{
+      name,
+      phone,
+      email: email || null,
+      user_type: userType || null,
+      property_type: propertyType || null,
+      budget_range: budgetRange || null,
+      message: message || null,
+      property_code: propertyCode || null,
+      source: source || null
+    }])
+
+    if (dbError) {
+      console.error('Supabase Error:', dbError)
+      // We log it but continue to send email if configured
+    }
+
+    // 2. Send email via Resend if API key is configured
     const resendApiKey = process.env.RESEND_API_KEY
     const contactEmail = process.env.CONTACT_EMAIL || 'morincontact@gmail.com'
 

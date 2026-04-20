@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
@@ -26,12 +27,20 @@ export default function SarthakEnclavePage() {
 
       {/* Hero */}
       <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-primary via-brand-primary/90 to-brand-accent" />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0">
+          <Image
+            src="/images/gallery-images/10.jpg"
+            alt="Sarthak Enclave Premium Apartments"
+            fill
+            priority
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/70 to-brand-primary/60" />
+        </div>
         <div className="relative z-10 text-center px-4">
           <Breadcrumb items={[{ label: 'Projects', href: '/projects' }, { label: 'Sarthak Enclave' }]} />
           <h1 className="font-serif font-bold text-4xl md:text-6xl text-white mt-6">Sarthak Enclave</h1>
-          <div className="flex items-center justify-center gap-2 text-white drop-shadow-md mt-4 text-lg">
+          <div className="flex items-center justify-center gap-2 text-white/70 mt-4 text-lg">
             <MapPin size={18} className="text-brand-secondary" /> Subhanpura, Vadodara
           </div>
         </div>
@@ -66,8 +75,10 @@ export default function SarthakEnclavePage() {
           <h2 className="section-title text-3xl text-center mb-12">Floor Plans</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {['2 BHK — Compact Living', '3 BHK — Spacious Family'].map(config => (
-              <div key={config} className="card p-6 !rounded-2xl text-center">
-                <Building2 size={32} className="text-brand-primary mx-auto mb-3" />
+              <div key={config} className="card-static p-8 !rounded-2xl text-center">
+                <div className="w-16 h-16 rounded-2xl bg-brand-secondary/10 flex items-center justify-center mx-auto mb-4">
+                  <Building2 size={28} className="text-brand-secondary" />
+                </div>
                 <h3 className="font-serif font-bold text-lg mb-2">{config}</h3>
                 <p className="text-text-secondary text-sm">Floor plan available on request</p>
               </div>
@@ -82,8 +93,8 @@ export default function SarthakEnclavePage() {
           <h2 className="section-title text-3xl text-center mb-12">Amenities</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto">
             {amenities.map(amenity => (
-              <div key={amenity.label} className="p-6 bg-brand-light rounded-2xl text-center">
-                <amenity.icon size={28} className="text-brand-primary mx-auto mb-3" />
+              <div key={amenity.label} className="p-6 bg-brand-light rounded-2xl text-center hover:bg-brand-secondary/5 transition-colors">
+                <amenity.icon size={28} className="text-brand-secondary mx-auto mb-3" />
                 <span className="text-sm font-medium text-text-primary">{amenity.label}</span>
               </div>
             ))}
@@ -117,16 +128,16 @@ export default function SarthakEnclavePage() {
         </div>
       </section>
 
-      {/* Contact / Register Interest */}
-      <section className="py-16 md:py-24 navy-gradient">
+      {/* Register Interest */}
+      <section className="py-16 md:py-24 charcoal-gradient">
         <div className="section-container text-center">
           <h2 className="font-serif font-bold text-3xl md:text-4xl text-white mb-4">Interested in Sarthak Enclave?</h2>
-          <p className="text-white drop-shadow-md mb-8">Register your interest or contact us for more details</p>
+          <p className="text-white/60 mb-8">Register your interest or contact us for more details</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href={getCallUrl()} className="btn-white">
               <Phone size={18} /> Call Now
             </a>
-            <a href={getWhatsAppUrl('Hi! I\'m interested in Sarthak Enclave project in Subhanpura.')} target="_blank" rel="noopener noreferrer" className="btn-primary">
+            <a href={getWhatsAppUrl("Hi! I'm interested in Sarthak Enclave project in Subhanpura. Please share availability and pricing details.")} target="_blank" rel="noopener noreferrer" className="btn-primary">
               <MessageCircle size={18} /> WhatsApp Us
             </a>
           </div>

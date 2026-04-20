@@ -19,6 +19,7 @@ export interface Property {
   description: string
   highlights: string[]
   images: string[]
+  videos: string[]
   featured: boolean
   badge: 'For Sale' | 'Hot Deal' | 'New' | 'Sold'
   nearbyPlaces?: { name: string; distance: string }[]

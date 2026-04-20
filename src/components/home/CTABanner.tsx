@@ -1,14 +1,23 @@
 'use client'
 import { motion } from 'framer-motion'
-import { Phone, MessageCircle } from 'lucide-react'
-import { getWhatsAppUrl, getCallUrl } from '@/lib/utils'
+import Link from 'next/link'
+import { Phone, ArrowRight, MessageCircle } from 'lucide-react'
+import { getWhatsAppUrl } from '@/lib/utils'
 
 export function CTABanner() {
   return (
-    <section className="py-16 md:py-24 navy-gradient relative overflow-hidden">
-      {/* Decorative */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-brand-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-brand-accent/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
+    <section className="py-20 md:py-28 charcoal-gradient relative overflow-hidden">
+      {/* Gold Particle Effect — CSS animated gradient circles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-brand-secondary/20 animate-float" />
+        <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 rounded-full bg-brand-secondary/15 animate-float" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/4 left-1/3 w-1 h-1 rounded-full bg-brand-secondary/25 animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 right-1/4 w-2.5 h-2.5 rounded-full bg-brand-secondary/10 animate-float" style={{ animationDelay: '3s' }} />
+        <div className="absolute bottom-1/3 right-1/2 w-1.5 h-1.5 rounded-full bg-brand-secondary/20 animate-float" style={{ animationDelay: '4s' }} />
+        {/* Large glow orbs */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-secondary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-accent/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-[120px]" />
+      </div>
 
       <div className="section-container relative z-10 text-center">
         <motion.div
@@ -17,28 +26,32 @@ export function CTABanner() {
           viewport={{ once: true }}
         >
           <h2 className="font-serif font-bold text-3xl sm:text-4xl md:text-5xl text-white mb-4 leading-tight">
-            Ready to Find Your
+            Your Dream Home in Vadodara
             <br />
-            <span className="gold-gradient-text">Dream Home?</span>
+            <span className="gold-gradient-text">is Closer Than You Think.</span>
           </h2>
-          <p className="text-white/70 text-lg mb-10 max-w-xl mx-auto">
-            Talk to our experts today — no pressure, just honest guidance.
+          <p className="text-white/60 text-lg mb-10 max-w-2xl mx-auto">
+            Join 325+ families who trusted Morin Property to find their perfect home.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href={getCallUrl()} className="btn-white">
-              <Phone size={18} />
-              Call Now
-            </a>
             <a
-              href={getWhatsAppUrl()}
+              href={getWhatsAppUrl("Hello! I'd like to schedule a free consultation to discuss my property needs in Vadodara.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-primary"
+              className="btn-primary !text-base !px-8 !py-4"
             >
               <MessageCircle size={18} />
-              WhatsApp Us
+              Schedule a Free Consultation
             </a>
+            <Link href="/properties" className="btn-white !text-base !px-8 !py-4">
+              Browse All Properties
+              <ArrowRight size={16} />
+            </Link>
           </div>
+          <p className="text-white/40 text-sm mt-8 flex items-center justify-center gap-2">
+            <Phone size={14} />
+            Call us Mon–Sat, 9AM–7PM: +91-9376786108
+          </p>
         </motion.div>
       </div>
     </section>

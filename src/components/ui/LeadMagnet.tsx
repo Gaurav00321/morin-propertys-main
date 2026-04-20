@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, FormEvent } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Phone, User, CheckCircle2 } from 'lucide-react';
 
@@ -9,8 +10,12 @@ export function LeadMagnet() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const pathname = usePathname();
 
   useEffect(() => {
+    // Don't show lead magnet on admin login page
+    if (pathname === '/admin/login') return;
+
     const hasSeenLeadMagnet = sessionStorage.getItem('hasSeenLeadMagnet');
     if (!hasSeenLeadMagnet) {
       const timer = setTimeout(() => {
@@ -25,14 +30,31 @@ export function LeadMagnet() {
     sessionStorage.setItem('hasSeenLeadMagnet', 'true');
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log('Lead captured:', { name, phone });
-    setIsSubmitted(true);
-    sessionStorage.setItem('hasSeenLeadMagnet', 'true');
-    setTimeout(() => {
-      setIsVisible(false);
-    }, 3000);
+    
+    try {
+      const res = await fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name, 
+          phone, 
+          source: 'Lead Magnet Popup',
+          message: 'Interested in exclusive property fast-tracks'
+        })
+      });
+
+      if (res.ok) {
+        setIsSubmitted(true);
+        sessionStorage.setItem('hasSeenLeadMagnet', 'true');
+        setTimeout(() => {
+          setIsVisible(false);
+        }, 3000);
+      }
+    } catch (err) {
+      console.error('Failed to submit lead:', err);
+    }
   };
 
   return (

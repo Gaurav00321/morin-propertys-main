@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from 'next'
-import { Cormorant_Garamond, Jost } from 'next/font/google'
+import { Cormorant_Garamond, DM_Sans, Space_Mono } from 'next/font/google'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 import { WhatsAppFAB } from '@/components/ui/WhatsAppFAB'
 import { PhoneCallFAB } from '@/components/ui/PhoneCallFAB'
 import { LeadMagnet } from '@/components/ui/LeadMagnet'
+import { BackToTop } from '@/components/ui/BackToTop'
+import { MobileBottomNav } from '@/components/ui/MobileBottomNav'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -13,11 +15,18 @@ const cormorant = Cormorant_Garamond({
   weight: ['300', '400', '500', '600', '700'],
 })
 
-const jost = Jost({
+const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
   weight: ['300', '400', '500', '600', '700'],
+})
+
+const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+  weight: ['400', '700'],
 })
 
 export const metadata: Metadata = {
@@ -56,14 +65,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#1A3C5E',
+  themeColor: '#1A1A2E',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID
 
   return (
-    <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${dmSans.variable} ${spaceMono.variable}`}>
       <head>
         <script
           type="application/ld+json"
@@ -95,11 +104,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="bg-brand-light text-text-primary antialiased font-sans">
+      <body className="bg-brand-light text-text-primary antialiased font-sans pb-16 lg:pb-0">
         <a href="#main-content" className="skip-link">Skip to main content</a>
         {children}
         <WhatsAppFAB />
         <PhoneCallFAB />
+        <BackToTop />
+        <MobileBottomNav />
         <LeadMagnet />
       </body>
       {gaId && <GoogleAnalytics gaId={gaId} />}

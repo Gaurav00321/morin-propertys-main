@@ -8,35 +8,69 @@ import { Phone, Mail, MapPin, Clock, MessageCircle, Facebook, Youtube, Send, Che
 import { getWhatsAppUrl, getCallUrl } from '@/lib/utils'
 
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false)
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [userType, setUserType] = useState('')
+  const [propertyType, setPropertyType] = useState('')
+  const [budgetRange, setBudgetRange] = useState('')
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 5000)
+    setLoading(true)
+
+    try {
+      const res = await fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, phone, email, userType, propertyType, budgetRange, message,
+          source: 'Contact Page'
+        })
+      })
+
+      if (res.ok) {
+        setSubmitted(true)
+        setTimeout(() => setSubmitted(false), 5000)
+        // Clear form
+        setName(''); setPhone(''); setEmail(''); setMessage('')
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }
+
+  // Live open/closed status based on IST
+  const now = new Date()
+  const istHour = (now.getUTCHours() + 5 + (now.getUTCMinutes() + 30 >= 60 ? 1 : 0)) % 24
+  const istDay = now.getUTCDay()
+  const isOpen = istDay >= 1 && istDay <= 6 && istHour >= 9 && istHour < 19
 
   return (
     <main id="main-content" className="min-h-screen">
       <Header />
-      <section className="hero-section hero-section--page bg-black min-h-[40vh] md:min-h-[50vh] flex items-center justify-center relative overflow-hidden isolate">
+      <section className="hero-section hero-section--page bg-black relative overflow-hidden isolate">
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <Image 
-            src="/images/hero/contact.png" 
-            alt="Contact Us" 
-            fill 
-            priority 
-            className="object-cover object-center" 
+          <Image
+            src="/images/hero/contact.png"
+            alt="Contact Us"
+            fill
+            priority
+            className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-black/40 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/70 to-brand-primary/50 z-10" />
         </div>
-        
+
         <div className="relative z-20 text-center w-full px-4">
           <Breadcrumb items={[{ label: 'Contact' }]} />
           <h1 className="font-serif font-bold text-4xl md:text-5xl text-white mt-6">
             Contact <span className="gold-gradient-text">Us</span>
           </h1>
-          <p className="text-white drop-shadow-md text-lg mt-4">We&apos;d love to hear from you</p>
+          <p className="text-white/70 text-lg mt-4">We&apos;d love to hear from you</p>
         </div>
       </section>
 
@@ -44,7 +78,7 @@ export default function ContactPage() {
         <div className="section-container">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
             {/* Form */}
-            <div className="card p-6 md:p-8 !rounded-2xl">
+            <div className="card-static p-6 md:p-8 !rounded-2xl">
               <h2 className="font-serif font-bold text-2xl mb-6">Send Us an Enquiry</h2>
               {submitted ? (
                 <div className="text-center py-12">
@@ -57,24 +91,31 @@ export default function ContactPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-semibold text-text-primary mb-1.5 block">Full Name *</label>
-                      <input type="text" className="input" placeholder="Your full name" required />
+                      <input type="text" className="input" placeholder="Your full name" required value={name} onChange={e => setName(e.target.value)} />
                     </div>
                     <div>
                       <label className="text-sm font-semibold text-text-primary mb-1.5 block">Phone Number *</label>
-                      <input type="tel" className="input" placeholder="+91 XXXXX XXXXX" required />
+                      <input type="tel" className="input" placeholder="+91 XXXXX XXXXX" required value={phone} onChange={e => setPhone(e.target.value)} />
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-1.5 block">Email Address</label>
-                    <input type="email" className="input" placeholder="your@email.com" />
+                    <input type="email" className="input" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} />
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-1.5 block">I am a</label>
                     <div className="flex flex-wrap gap-2">
                       {['Buyer', 'Seller', 'Investor', 'Other'].map(type => (
-                        <label key={type} className="flex items-center gap-2 px-4 py-2 bg-brand-light rounded-full cursor-pointer hover:bg-brand-secondary/10 transition-colors">
-                          <input type="radio" name="userType" value={type} className="accent-brand-secondary" />
-                          <span className="text-sm font-medium">{type}</span>
+                        <label key={type} className="pill-toggle cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="userType" 
+                            value={type} 
+                            className="sr-only peer" 
+                            checked={userType === type}
+                            onChange={() => setUserType(type)}
+                          />
+                          <span className="peer-checked:bg-brand-secondary peer-checked:text-white peer-checked:border-brand-secondary">{type}</span>
                         </label>
                       ))}
                     </div>
@@ -82,7 +123,7 @@ export default function ContactPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-semibold text-text-primary mb-1.5 block">Property Type</label>
-                      <select className="select">
+                      <select className="select" value={propertyType} onChange={e => setPropertyType(e.target.value)}>
                         <option value="">Select type</option>
                         <option>Flat / Apartment</option>
                         <option>Independent House</option>
@@ -92,7 +133,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <label className="text-sm font-semibold text-text-primary mb-1.5 block">Budget Range</label>
-                      <select className="select">
+                      <select className="select" value={budgetRange} onChange={e => setBudgetRange(e.target.value)}>
                         <option value="">Select budget</option>
                         <option>₹20 Lac - ₹30 Lac</option>
                         <option>₹30 Lac - ₹50 Lac</option>
@@ -104,10 +145,10 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-1.5 block">Message</label>
-                    <textarea className="textarea" placeholder="Tell us what you're looking for..." rows={4} />
+                    <textarea className="textarea" placeholder="Tell us what you're looking for..." rows={4} value={message} onChange={e => setMessage(e.target.value)} />
                   </div>
-                  <button type="submit" className="btn-primary w-full md:w-auto">
-                    <Send size={16} /> Send Enquiry
+                  <button type="submit" disabled={loading} className="btn-primary w-full md:w-auto">
+                    <Send size={16} /> {loading ? 'Sending...' : 'Send Enquiry'}
                   </button>
                   <p className="text-xs text-text-muted">Your information is 100% confidential and never shared.</p>
                 </form>
@@ -116,20 +157,26 @@ export default function ContactPage() {
 
             {/* Info Card */}
             <div className="space-y-6">
-              <div className="card p-6 !rounded-2xl">
+              <div className="card-static p-6 !rounded-2xl">
                 <h3 className="font-serif font-bold text-xl mb-6">Contact Information</h3>
                 <div className="space-y-5">
+                  {/* Open Status */}
+                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${isOpen ? 'bg-brand-accent/10 text-brand-accent' : 'bg-red-50 text-red-500'}`}>
+                    <span className={`w-2 h-2 rounded-full ${isOpen ? 'bg-brand-accent animate-pulse' : 'bg-red-400'}`} />
+                    {isOpen ? 'Open Now' : 'Closed'}
+                  </div>
+                  
                   <div className="flex gap-3">
                     <MapPin size={20} className="text-brand-secondary flex-shrink-0 mt-1" />
                     <p className="text-text-secondary text-sm leading-relaxed">
                       Kubereshwar Rd, Goverdhan Township, Kendranagar, Waghodia Road, Vadodara, Gujarat — 390025
                     </p>
                   </div>
-                  <a href="tel:+919376786108" className="flex items-center gap-3 text-text-secondary text-sm hover:text-brand-primary transition">
+                  <a href="tel:+919376786108" className="flex items-center gap-3 text-text-secondary text-sm hover:text-brand-secondary transition">
                     <Phone size={20} className="text-brand-secondary" />
                     +91-9376786108
                   </a>
-                  <a href="mailto:morincontact@gmail.com" className="flex items-center gap-3 text-text-secondary text-sm hover:text-brand-primary transition">
+                  <a href="mailto:morincontact@gmail.com" className="flex items-center gap-3 text-text-secondary text-sm hover:text-brand-secondary transition">
                     <Mail size={20} className="text-brand-secondary" />
                     morincontact@gmail.com
                   </a>
@@ -142,7 +189,7 @@ export default function ContactPage() {
 
               {/* Quick Actions */}
               <div className="grid grid-cols-2 gap-3">
-                <a href={getCallUrl()} className="btn-navy justify-center !py-3 text-sm">
+                <a href={getCallUrl()} className="btn-charcoal justify-center !py-3 text-sm">
                   <Phone size={16} /> Call Now
                 </a>
                 <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="btn-whatsapp justify-center !py-3 text-sm">

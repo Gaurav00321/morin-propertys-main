@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Phone, Menu, X, ChevronDown, MessageCircle } from 'lucide-react'
 import { getWhatsAppUrl, getCallUrl } from '@/lib/utils'
@@ -30,6 +31,7 @@ const navLinks = [
     ],
   },
   { label: 'About', href: '/about' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Contact', href: '/contact' },
 ]
 
@@ -37,9 +39,10 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20)
+    const handleScroll = () => setScrolled(window.scrollY > 80)
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -53,16 +56,26 @@ export function Header() {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
   const toggleDropdown = useCallback((label: string) => {
     setActiveDropdown(prev => prev === label ? null : label)
   }, [])
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    return pathname.startsWith(href)
+  }
 
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-nav'
+            ? 'bg-brand-primary/95 backdrop-blur-md shadow-nav border-b border-white/5'
             : 'bg-transparent'
         }`}
       >
@@ -70,57 +83,57 @@ export function Header() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 z-10">
-              <div className="flex items-center">
-                <span className={`font-serif font-bold text-2xl tracking-tight transition-colors ${
-                  scrolled ? 'text-brand-primary' : 'text-white'
-                }`}>
-                  Morin
-                </span>
-                <span className={`font-serif font-bold text-2xl tracking-tight transition-colors ${
-                  scrolled ? 'text-brand-secondary' : 'text-brand-secondary'
-                }`}>
-                  {' '}Property
-                </span>
-              </div>
+              <span className="font-serif font-bold text-2xl tracking-tight text-white">
+                Morin
+              </span>
+              <span className="font-serif font-bold text-2xl tracking-tight text-brand-secondary">
+                Property
+              </span>
             </Link>
 
-            {/* Desktop Nav */}
+            {/* Desktop Nav — Centered */}
             <nav className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
                 <div key={link.label} className="relative group">
                   {link.children ? (
                     <button
                       className={`flex items-center gap-1 px-4 py-2 text-[15px] font-medium rounded-full transition-all ${
-                        scrolled
-                          ? 'text-text-secondary hover:text-brand-primary hover:bg-brand-light'
-                          : 'text-white/90 hover:text-white hover:bg-white/10'
+                        isActive(link.href)
+                          ? 'text-brand-secondary'
+                          : 'text-white/80 hover:text-white hover:bg-white/10'
                       }`}
                     >
                       {link.label}
-                      <ChevronDown size={14} className="group-hover:rotate-180 transition-transform" />
+                      <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
                     </button>
                   ) : (
                     <Link
                       href={link.href}
-                      className={`px-4 py-2 text-[15px] font-medium rounded-full transition-all ${
-                        scrolled
-                          ? 'text-text-secondary hover:text-brand-primary hover:bg-brand-light'
-                          : 'text-white/90 hover:text-white hover:bg-white/10'
+                      className={`relative px-4 py-2 text-[15px] font-medium rounded-full transition-all ${
+                        isActive(link.href)
+                          ? 'text-brand-secondary'
+                          : 'text-white/80 hover:text-white hover:bg-white/10'
                       }`}
                     >
                       {link.label}
+                      {isActive(link.href) && (
+                        <motion.div
+                          layoutId="nav-underline"
+                          className="absolute -bottom-1 left-4 right-4 h-0.5 bg-brand-secondary rounded-full"
+                        />
+                      )}
                     </Link>
                   )}
 
                   {/* Dropdown */}
                   {link.children && (
                     <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      <div className="bg-white rounded-2xl shadow-card-hover py-2 min-w-[220px] border border-border">
+                      <div className="bg-brand-primary/95 backdrop-blur-lg rounded-2xl py-2 min-w-[220px] border border-white/10 shadow-card-hover">
                         {link.children.map((child) => (
                           <Link
                             key={child.href}
                             href={child.href}
-                            className="block px-5 py-2.5 text-[14px] text-text-secondary hover:text-brand-primary hover:bg-brand-light/50 transition-colors"
+                            className="block px-5 py-2.5 text-[14px] text-white/70 hover:text-brand-secondary hover:bg-white/5 transition-colors"
                           >
                             {child.label}
                           </Link>
@@ -135,12 +148,17 @@ export function Header() {
             {/* Right Actions */}
             <div className="hidden lg:flex items-center gap-3">
               <a
+                href={getWhatsAppUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all"
+              >
+                <MessageCircle size={16} />
+                WhatsApp
+              </a>
+              <a
                 href={getCallUrl()}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                  scrolled
-                    ? 'bg-brand-secondary text-white shadow-cta hover:bg-brand-secondary/90'
-                    : 'bg-brand-secondary text-white shadow-cta hover:bg-brand-secondary/90'
-                }`}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-brand-secondary text-white shadow-cta hover:bg-brand-secondary/90 hover:scale-[1.03] transition-all"
               >
                 <Phone size={15} />
                 +91-9376786108
@@ -150,11 +168,7 @@ export function Header() {
             {/* Mobile Hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className={`lg:hidden z-10 p-2 rounded-xl transition-all ${
-                mobileOpen || scrolled
-                  ? 'text-brand-primary'
-                  : 'text-white bg-black/20 backdrop-blur-sm'
-              }`}
+              className="lg:hidden z-10 p-2 rounded-xl transition-all text-white"
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             >
               {mobileOpen ? <X size={24} /> : <Menu size={24} />}
@@ -174,7 +188,7 @@ export function Header() {
           >
             {/* Backdrop */}
             <motion.div
-              className="absolute inset-0 bg-brand-primary/95 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
             />
 
@@ -184,7 +198,7 @@ export function Header() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white overflow-y-auto"
+              className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-brand-primary overflow-y-auto"
             >
               <div className="p-6 pt-24">
                 {/* Nav Links */}
@@ -195,7 +209,9 @@ export function Header() {
                         <>
                           <button
                             onClick={() => toggleDropdown(link.label)}
-                            className="w-full flex items-center justify-between py-3 px-4 text-lg font-semibold text-text-primary hover:text-brand-primary rounded-xl hover:bg-brand-light transition-all"
+                            className={`w-full flex items-center justify-between py-3 px-4 text-lg font-semibold rounded-xl transition-all ${
+                              isActive(link.href) ? 'text-brand-secondary' : 'text-white/90 hover:text-white hover:bg-white/5'
+                            }`}
                           >
                             {link.label}
                             <ChevronDown
@@ -216,7 +232,7 @@ export function Header() {
                                     key={child.href}
                                     href={child.href}
                                     onClick={() => setMobileOpen(false)}
-                                    className="block py-2.5 px-4 text-[15px] text-text-secondary hover:text-brand-primary rounded-lg hover:bg-brand-light transition-all"
+                                    className="block py-2.5 px-4 text-[15px] text-white/60 hover:text-brand-secondary rounded-lg transition-all"
                                   >
                                     {child.label}
                                   </Link>
@@ -229,7 +245,9 @@ export function Header() {
                         <Link
                           href={link.href}
                           onClick={() => setMobileOpen(false)}
-                          className="block py-3 px-4 text-lg font-semibold text-text-primary hover:text-brand-primary rounded-xl hover:bg-brand-light transition-all"
+                          className={`block py-3 px-4 text-lg font-semibold rounded-xl transition-all ${
+                            isActive(link.href) ? 'text-brand-secondary' : 'text-white/90 hover:text-white hover:bg-white/5'
+                          }`}
                         >
                           {link.label}
                         </Link>
@@ -239,7 +257,7 @@ export function Header() {
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="mt-8 pt-6 border-t border-border space-y-3">
+                <div className="mt-8 pt-6 border-t border-white/10 space-y-3">
                   <a
                     href={getCallUrl()}
                     className="btn-primary w-full justify-center"
@@ -261,13 +279,13 @@ export function Header() {
                 </div>
 
                 {/* Contact Info */}
-                <div className="mt-8 pt-6 border-t border-border">
-                  <p className="text-sm text-text-secondary leading-relaxed">
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <p className="text-sm text-white/50 leading-relaxed">
                     Kubereshwar Rd, Goverdhan Township,<br />
                     Kendranagar, Waghodia Road,<br />
                     Vadodara, Gujarat — 390025
                   </p>
-                  <p className="text-sm text-text-muted mt-3">
+                  <p className="text-sm text-white/40 mt-3">
                     Mon–Sat: 9:00 AM – 7:00 PM
                   </p>
                 </div>

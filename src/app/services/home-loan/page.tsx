@@ -1,239 +1,101 @@
-'use client'
-import { useState } from 'react'
+import type { Metadata } from 'next'
+import Image from 'next/image'
+import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
-import { homeLoanFaqs } from '@/data/faqs'
-import { ChevronDown, Landmark, Zap, FileText, ArrowRight, Send } from 'lucide-react'
-import Link from 'next/link'
-import Image from 'next/image'
+import { CTABanner } from '@/components/home/CTABanner'
+import { Landmark, FileCheck, IndianRupee, Clock, CheckCircle2, Phone, MessageCircle } from 'lucide-react'
+import { getWhatsAppUrl, getCallUrl } from '@/lib/utils'
+
+export const metadata: Metadata = {
+  title: 'Home Loan Assistance | Morin Property Vadodara',
+  description: 'Fast, hassle-free home loan processing in Vadodara with Morin Property. 10+ bank partners, best interest rates.',
+}
 
 export default function HomeLoanPage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [loanAmount, setLoanAmount] = useState(3000000)
-  const [interestRate, setInterestRate] = useState(8.5)
-  const [tenure, setTenure] = useState(20)
-
-  const r = interestRate / 12 / 100
-  const n = tenure * 12
-  const emi = r > 0 ? (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : loanAmount / n
-  const totalPayment = emi * n
-  const totalInterest = totalPayment - loanAmount
-
-  const formatAmount = (amt: number) => {
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} Lac`
-    return `₹${Math.round(amt).toLocaleString('en-IN')}`
-  }
-
   return (
     <main id="main-content" className="min-h-screen">
       <Header />
-      <section className="hero-section hero-section--page bg-black min-h-[40vh] md:min-h-[50vh] flex items-center justify-center relative overflow-hidden isolate">
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <Image 
-            src="/images/hero/home-loan.png" 
-            alt="Home Loan Assistance" 
-            fill 
-            priority 
-            className="object-cover object-center" 
-          />
-          <div className="absolute inset-0 bg-black/40 z-10" />
-        </div>
-        <div className=" relative z-20 text-center w-full px-4">
-          <Breadcrumb items={[{ label: 'Services', href: '/services' }, { label: 'Home Loan' }]} />
-          <h1 className="font-serif font-bold text-3xl md:text-5xl text-white mt-6">
-            Hassle-Free <span className="gold-gradient-text">Home Loans</span>
+      <section className="hero-section hero-section--page charcoal-gradient relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/90 to-brand-primary/80 z-10" />
+        <div className="relative z-20 text-center w-full px-4">
+          <Breadcrumb items={[{ label: 'Services', href: '/services' }, { label: 'Home Loan Assistance' }]} />
+          <h1 className="font-serif font-bold text-4xl md:text-5xl text-white mt-6">
+            Home Loan <span className="gold-gradient-text">Assistance</span>
           </h1>
-          <p className="text-white drop-shadow-md text-lg mt-4">We Handle the Paperwork</p>
         </div>
       </section>
 
-      {/* Intro */}
       <section className="py-16 md:py-24 bg-white">
-        <div className="section-container max-w-3xl mx-auto text-center">
-          <p className="text-text-secondary text-lg leading-relaxed">
-            Getting a home loan shouldn&apos;t be complicated. Morin Property&apos;s home loan assistance
-            service connects you with leading banks and NBFCs to secure the best possible loan —
-            with minimal paperwork, fast approvals, and completely transparent terms.
-          </p>
+        <div className="section-container">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+            <div>
+              <p className="section-eyebrow">Our Service</p>
+              <h2 className="section-title text-3xl md:text-4xl mb-6">Financial Support, Simplified</h2>
+              <div className="text-text-secondary text-lg leading-relaxed space-y-4 mb-8">
+                <p>Securing a home loan shouldn&apos;t be the hardest part of buying a house. We partner directly with leading national and private banks to ensure you get the best interest rates with the least amount of friction.</p>
+                <p>Our dedicated loan assistance team helps you evaluate your eligibility, compares offerings across 10+ banks, and manages the entire documentation process so you can focus on your new home, not bank queues.</p>
+              </div>
+              <div className="space-y-3 mb-8">
+                {['10+ Banking Partners', 'Lowest Possible Interest Rates', 'Doorstep Document Collection', 'Fast Approvals (48-72 hours)'].map(item => (
+                  <div key={item} className="flex items-center gap-3 font-medium text-text-primary">
+                    <CheckCircle2 size={20} className="text-brand-accent flex-shrink-0" /> {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="relative flex items-center justify-center bg-brand-light rounded-3xl overflow-hidden aspect-[4/3] p-12">
+              <div className="text-center space-y-4">
+                <Landmark size={64} className="text-brand-secondary mx-auto" />
+                <h3 className="font-serif font-bold text-2xl">Trusted Banking Partners</h3>
+                <p className="text-text-secondary">SBI, HDFC, ICICI, Axis, Bank of Baroda, and more leading institutions.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Highlights */}
-      <section className="py-16 md:py-20 bg-brand-light">
-        <div className="section-container">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="py-16 md:py-24 bg-brand-light">
+        <div className="section-container max-w-4xl mx-auto">
+          <h2 className="section-title text-3xl text-center mb-12">How We Help You Get Funded</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
-              { icon: Landmark, title: '10+ Banking Partners', desc: 'Best rates, guaranteed' },
-              { icon: Zap, title: 'Fast Approvals', desc: 'Pre-approval in as little as 48 hours' },
-              { icon: FileText, title: 'Full Documentation Support', desc: 'We handle the paperwork for you' },
-            ].map(item => (
-              <div key={item.title} className="card p-8 text-center !rounded-2xl">
-                <div className="w-16 h-16 rounded-full bg-brand-secondary/10 flex items-center justify-center mx-auto mb-4">
-                  <item.icon size={28} className="text-brand-secondary" />
+              { icon: FileCheck, title: 'Eligibility Check', desc: 'We assess your profile to accurately estimate your loan eligibility.' },
+              { icon: IndianRupee, title: 'Rate Comparison', desc: 'We compare competing bank offers to secure the lowest interest rate.' },
+              { icon: Clock, title: 'Fast Processing', desc: 'Our team handles the heavy lifting to ensure quick 48-hour approvals.' },
+              { icon: Landmark, title: 'Disbursement', desc: 'We coordinate with the bank and the builder for seamless final disbursement.' },
+            ].map(step => (
+              <div key={step.title} className="card-static p-6 !rounded-2xl">
+                <div className="w-12 h-12 rounded-xl bg-brand-secondary/10 flex items-center justify-center mb-4">
+                  <step.icon size={20} className="text-brand-secondary" />
                 </div>
-                <h3 className="font-serif font-bold text-xl mb-2">{item.title}</h3>
-                <p className="text-text-secondary text-sm">{item.desc}</p>
+                <h3 className="font-bold text-lg mb-2 text-text-primary">{step.title}</h3>
+                <p className="text-text-secondary text-sm">{step.desc}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* EMI Calculator */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="section-container">
-          <div className="text-center mb-12">
-            <p className="section-eyebrow justify-center">Calculator</p>
-            <h2 className="section-title text-3xl md:text-4xl">EMI Calculator</h2>
-          </div>
-          <div className="max-w-3xl mx-auto card !rounded-2xl p-6 md:p-8">
-            <div className="space-y-8">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <label className="font-semibold text-sm">Loan Amount</label>
-                  <span className="font-bold text-brand-primary">{formatAmount(loanAmount)}</span>
-                </div>
-                <input type="range" min={500000} max={50000000} step={100000} value={loanAmount}
-                  onChange={e => setLoanAmount(Number(e.target.value))}
-                  className="w-full accent-brand-secondary" />
-                <div className="flex justify-between text-xs text-text-muted mt-1">
-                  <span>₹5 Lac</span><span>₹5 Cr</span>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between mb-2">
-                  <label className="font-semibold text-sm">Interest Rate</label>
-                  <span className="font-bold text-brand-primary">{interestRate}%</span>
-                </div>
-                <input type="range" min={6} max={18} step={0.1} value={interestRate}
-                  onChange={e => setInterestRate(Number(e.target.value))}
-                  className="w-full accent-brand-secondary" />
-                <div className="flex justify-between text-xs text-text-muted mt-1">
-                  <span>6%</span><span>18%</span>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between mb-2">
-                  <label className="font-semibold text-sm">Loan Tenure</label>
-                  <span className="font-bold text-brand-primary">{tenure} Years</span>
-                </div>
-                <input type="range" min={1} max={30} step={1} value={tenure}
-                  onChange={e => setTenure(Number(e.target.value))}
-                  className="w-full accent-brand-secondary" />
-                <div className="flex justify-between text-xs text-text-muted mt-1">
-                  <span>1 Year</span><span>30 Years</span>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-8 border-t border-border">
-              <div className="text-center p-4 bg-brand-secondary/10 rounded-xl">
-                <div className="text-sm text-text-secondary mb-1">Monthly EMI</div>
-                <div className="font-serif font-bold text-2xl text-brand-secondary">{formatAmount(emi)}</div>
-              </div>
-              <div className="text-center p-4 bg-brand-light rounded-xl">
-                <div className="text-sm text-text-secondary mb-1">Total Interest</div>
-                <div className="font-serif font-bold text-xl text-text-primary">{formatAmount(totalInterest)}</div>
-              </div>
-              <div className="text-center p-4 bg-brand-light rounded-xl">
-                <div className="text-sm text-text-secondary mb-1">Total Payment</div>
-                <div className="font-serif font-bold text-xl text-text-primary">{formatAmount(totalPayment)}</div>
-              </div>
-            </div>
-            {/* Pie chart visual */}
-            <div className="flex items-center justify-center mt-8 gap-8">
-              <div className="relative w-32 h-32">
-                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#E2E8F0" strokeWidth="18" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#1A3C5E" strokeWidth="18"
-                    strokeDasharray={`${(loanAmount / totalPayment) * 251.2} 251.2`} />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#C8922A" strokeWidth="18"
-                    strokeDasharray={`${(totalInterest / totalPayment) * 251.2} 251.2`}
-                    strokeDashoffset={`${-(loanAmount / totalPayment) * 251.2}`} />
-                </svg>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="w-3 h-3 rounded-full bg-brand-primary" />
-                  Principal: {((loanAmount / totalPayment) * 100).toFixed(0)}%
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="w-3 h-3 rounded-full bg-brand-secondary" />
-                  Interest: {((totalInterest / totalPayment) * 100).toFixed(0)}%
-                </div>
-              </div>
-            </div>
+          <div className="mt-12 text-center">
+            <Link href="/tools/emi-calculator" className="btn-secondary">
+              Try our EMI Calculator
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Eligibility Form */}
-      <section className="py-16 md:py-20 bg-brand-light">
-        <div className="section-container">
-          <div className="max-w-2xl mx-auto card p-8 !rounded-2xl shadow-card-hover border border-border">
-            <div className="text-center mb-8">
-              <h2 className="section-title text-2xl md:text-3xl mb-2">Check Loan Eligibility</h2>
-              <p className="text-text-secondary">Provide a few basic details to check your eligibility in minutes.</p>
-            </div>
-            <form className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" placeholder="Full Name *" className="input" required />
-                <input type="tel" placeholder="Phone Number *" className="input" required />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select className="select" required>
-                  <option value="">Employment Type</option>
-                  <option>Salaried</option>
-                  <option>Self-Employed / Business</option>
-                  <option>Professional</option>
-                  <option>NRI</option>
-                </select>
-                <input type="number" placeholder="Net Monthly Income (₹)" className="input" required />
-              </div>
-              <button type="button" onClick={() => alert('Eligibility Check Request Sent!')} className="btn-primary w-full justify-center !py-3 bg-brand-secondary hover:bg-brand-secondary/90">
-                <Send size={18} /> Request Call Back
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* Banking Partners */}
-      <section className="py-16 md:py-20 bg-brand-light">
-        <div className="section-container text-center">
-          <h2 className="section-title text-3xl mb-8">Our Banking Partners</h2>
-          <div className="flex flex-wrap justify-center gap-6">
-            {['SBI', 'HDFC', 'ICICI', 'Axis Bank', 'Bank of Baroda', 'LIC Housing'].map(bank => (
-              <div key={bank} className="px-6 py-3 bg-white rounded-xl shadow-card text-text-primary font-semibold text-sm">
-                {bank}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24 bg-white text-center">
         <div className="section-container max-w-3xl mx-auto">
-          <h2 className="section-title text-3xl md:text-4xl text-center mb-12">Frequently Asked Questions</h2>
-          <div className="card !rounded-2xl overflow-hidden">
-            {homeLoanFaqs.map((faq, i) => (
-              <div key={i} className="border-b border-border last:border-0">
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between p-6 text-left hover:bg-brand-light/50 transition"
-                >
-                  <span className={`font-semibold pr-4 ${openFaq === i ? 'text-brand-primary' : 'text-text-primary'}`}>{faq.question}</span>
-                  <ChevronDown size={18} className={`text-brand-secondary flex-shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
-                </button>
-                {openFaq === i && <div className="px-6 pb-6 text-text-secondary text-sm leading-relaxed">{faq.answer}</div>}
-              </div>
-            ))}
+          <h2 className="font-serif font-bold text-3xl mb-6">Need help securing a loan?</h2>
+          <p className="text-text-secondary mb-8">Speak to our financial experts today to check your eligibility instantly.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href={getCallUrl()} className="btn-charcoal"><Phone size={18} /> Call Loan Expert</a>
+            <a href={getWhatsAppUrl("Hi! I need assistance with a home loan for a property in Vadodara.")} target="_blank" rel="noopener noreferrer" className="btn-whatsapp"><MessageCircle size={18} /> WhatsApp Us</a>
           </div>
         </div>
       </section>
 
+      <CTABanner />
       <Footer />
     </main>
   )

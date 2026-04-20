@@ -1,44 +1,82 @@
 'use client'
-import { useState, useMemo, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import type { Metadata } from 'next'
+import { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
-import { properties } from '@/data/properties'
-import { MapPin, Bed, Bath, Maximize, Search, SlidersHorizontal, X, Home } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { getProperties } from '@/data/properties'
+import { localities } from '@/data/localities'
+import {
+  MapPin, Bed, Bath, Maximize, Search, SlidersHorizontal,
+  X, MessageCircle, Home, ArrowRight, ChevronDown,
+} from 'lucide-react'
+import { getWhatsAppUrl } from '@/lib/utils'
+import { Property } from '@/types/property'
 
-function PropertiesContent() {
-  const searchParams = useSearchParams()
-  const [propertyType, setPropertyType] = useState('')
-  const [locality, setLocality] = useState(searchParams.get('locality') || '')
-  const [bhk, setBhk] = useState('')
+const propertyTypes = ['All', 'Flat / Apartment', 'Independent House', 'Plot']
+const bhkOptions = ['All', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK']
+const sortOptions = [
+  { label: 'Newest First', value: 'newest' },
+  { label: 'Price: Low to High', value: 'price-asc' },
+  { label: 'Price: High to Low', value: 'price-desc' },
+  { label: 'Area: Largest', value: 'area-desc' },
+]
 
-  useEffect(() => {
-    const loc = searchParams.get('locality')
-    if (loc) setLocality(loc)
-  }, [searchParams])
+export default function PropertiesPage() {
+  const [dbProperties, setDbProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
+  const [typeFilter, setTypeFilter] = useState('All')
+  const [localityFilter, setLocalityFilter] = useState('All')
+  const [bhkFilter, setBhkFilter] = useState('All')
   const [sortBy, setSortBy] = useState('newest')
   const [showFilters, setShowFilters] = useState(false)
 
-  const filtered = useMemo(() => {
-    let result = [...properties]
-    if (propertyType) result = result.filter(p => p.type === propertyType)
-    if (locality) result = result.filter(p => p.locality === locality)
-    if (bhk) result = result.filter(p => p.bhk.startsWith(bhk))
-    if (sortBy === 'price-low') result.sort((a, b) => a.price - b.price)
-    if (sortBy === 'price-high') result.sort((a, b) => b.price - a.price)
-    if (sortBy === 'area') result.sort((a, b) => b.area - a.area)
-    return result
-  }, [propertyType, locality, bhk, sortBy])
+  useEffect(() => {
+    async function load() {
+      const data = await getProperties()
+      setDbProperties(data)
+      setLoading(false)
+    }
+    load()
+  }, [])
 
-  const resetFilters = () => {
-    setPropertyType('')
-    setLocality('')
-    setBhk('')
+  const filtered = useMemo(() => {
+    let result = [...dbProperties]
+
+    if (typeFilter !== 'All') {
+      result = result.filter(p => p.type === typeFilter)
+    }
+    if (localityFilter !== 'All') {
+      result = result.filter(p => p.locality === localityFilter)
+    }
+    if (bhkFilter !== 'All') {
+      result = result.filter(p => p.bhk.includes(bhkFilter.replace(' BHK', '')))
+    }
+
+    // Sort
+    switch (sortBy) {
+      case 'price-asc':
+        result.sort((a, b) => a.price - b.price)
+        break
+      case 'price-desc':
+        result.sort((a, b) => b.price - a.price)
+        break
+      case 'area-desc':
+        result.sort((a, b) => b.area - a.area)
+        break
+    }
+
+    return result
+  }, [dbProperties, typeFilter, localityFilter, bhkFilter, sortBy])
+
+  const hasActiveFilters = typeFilter !== 'All' || localityFilter !== 'All' || bhkFilter !== 'All'
+
+  const clearFilters = () => {
+    setTypeFilter('All')
+    setLocalityFilter('All')
+    setBhkFilter('All')
     setSortBy('newest')
   }
 
@@ -47,173 +85,218 @@ function PropertiesContent() {
       <Header />
 
       {/* Hero */}
-      <section className="hero-section hero-section--page bg-black min-h-[40vh] md:min-h-[50vh] flex items-center justify-center relative overflow-hidden isolate">
+      <section className="hero-section hero-section--page bg-black relative overflow-hidden isolate">
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <Image 
-            src="/images/hero/properties.png" 
-            alt="Properties for Sale in Vadodara" 
-            fill 
-            priority 
-            className="object-cover object-center" 
+          <Image
+            src="/images/hero/properties.png"
+            alt="Properties in Vadodara"
+            fill
+            priority
+            className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-black/40 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/70 to-brand-primary/50 z-10" />
         </div>
-        
         <div className="relative z-20 text-center w-full px-4">
           <Breadcrumb items={[{ label: 'Properties' }]} />
           <h1 className="font-serif font-bold text-4xl md:text-5xl text-white mt-6">
-            Properties for Sale in <span className="gold-gradient-text">Vadodara</span>
+            Explore <span className="gold-gradient-text">Properties</span>
           </h1>
-          <p className="text-white drop-shadow-md text-lg mt-4 max-w-2xl mx-auto">
-            Browse verified properties across Vadodara&apos;s finest localities
+          <p className="text-white/70 text-lg mt-4">
+            {loading ? '...' : dbProperties.length} verified listings across Vadodara
           </p>
         </div>
       </section>
 
-      <section className="py-12 md:py-16 bg-brand-light">
+      {/* Filter + Results */}
+      <section className="py-8 md:py-12 bg-brand-light min-h-[60vh]">
         <div className="section-container">
-          <div className="lg:grid lg:grid-cols-[280px_1fr] gap-8">
-            {/* Filter Sidebar - Desktop */}
-            <aside className="hidden lg:block">
-              <div className="card p-6 !rounded-2xl sticky top-24">
-                <h3 className="font-serif font-bold text-lg mb-6 flex items-center gap-2">
-                  <SlidersHorizontal size={18} className="text-brand-secondary" />
-                  Filters
-                </h3>
+          {/* Top Bar */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <p className="text-text-secondary text-sm">
+              Showing <span className="font-bold text-text-primary">{filtered.length}</span> of {dbProperties.length} properties
+              {hasActiveFilters && (
+                <button onClick={clearFilters} className="ml-3 text-brand-secondary text-xs font-semibold hover:underline">
+                  Clear all filters
+                </button>
+              )}
+            </p>
+            <div className="flex items-center gap-3">
+              {/* Sort */}
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                  className="select !h-10 !text-xs !pr-10 !pl-3 !rounded-full"
+                >
+                  {sortOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Mobile filter toggle */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border border-border bg-white hover:border-brand-secondary transition-all"
+              >
+                <SlidersHorizontal size={14} />
+                Filters {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-brand-secondary" />}
+              </button>
+            </div>
+          </div>
 
-                <div className="space-y-5">
+          <div className="lg:grid lg:grid-cols-[260px_1fr] gap-8">
+            {/* Sidebar Filters — Desktop */}
+            <aside className={`${showFilters ? 'fixed inset-0 z-50 bg-black/50 lg:static lg:bg-transparent' : 'hidden lg:block'}`}>
+              <div className={`${showFilters ? 'absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white p-6 overflow-y-auto lg:static lg:max-w-none lg:p-0' : ''}`}>
+                {/* Mobile close */}
+                {showFilters && (
+                  <button onClick={() => setShowFilters(false)} className="lg:hidden absolute top-4 right-4 p-2">
+                    <X size={20} />
+                  </button>
+                )}
+
+                <div className="card-static p-6 !rounded-2xl space-y-6">
+                  <h3 className="font-serif font-bold text-lg">Filters</h3>
+
+                  {/* Property Type */}
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-2 block">Property Type</label>
-                    <select value={propertyType} onChange={e => setPropertyType(e.target.value)} className="select">
-                      <option value="">All Types</option>
-                      <option value="Flat / Apartment">Flat / Apartment</option>
-                      <option value="Independent House">Independent House</option>
-                      <option value="Plot">Plot</option>
-                    </select>
+                    <div className="space-y-1.5">
+                      {propertyTypes.map(type => (
+                        <label key={type} className="flex items-center gap-2 cursor-pointer group">
+                          <input
+                            type="radio"
+                            name="type"
+                            checked={typeFilter === type}
+                            onChange={() => setTypeFilter(type)}
+                            className="accent-brand-secondary w-4 h-4"
+                          />
+                          <span className={`text-sm ${typeFilter === type ? 'text-text-primary font-semibold' : 'text-text-secondary group-hover:text-text-primary'} transition-colors`}>
+                            {type === 'All' ? 'All Types' : type}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
+                  {/* Locality */}
                   <div>
                     <label className="text-sm font-semibold text-text-primary mb-2 block">Locality</label>
-                    <select value={locality} onChange={e => setLocality(e.target.value)} className="select">
-                      <option value="">All Localities</option>
-                      <option value="Waghodia Road">Waghodia Road</option>
-                      <option value="Ajwa Road">Ajwa Road</option>
-                      <option value="Jarod">Jarod</option>
-                      <option value="Subhanpura">Subhanpura</option>
-                    </select>
+                    <div className="space-y-1.5">
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" name="locality" checked={localityFilter === 'All'} onChange={() => setLocalityFilter('All')} className="accent-brand-secondary w-4 h-4" />
+                        <span className={`text-sm ${localityFilter === 'All' ? 'text-text-primary font-semibold' : 'text-text-secondary'}`}>All Localities</span>
+                      </label>
+                      {localities.map(loc => (
+                        <label key={loc.slug} className="flex items-center justify-between gap-2 cursor-pointer group">
+                          <div className="flex items-center gap-2">
+                            <input type="radio" name="locality" checked={localityFilter === loc.name} onChange={() => setLocalityFilter(loc.name)} className="accent-brand-secondary w-4 h-4" />
+                            <span className={`text-sm ${localityFilter === loc.name ? 'text-text-primary font-semibold' : 'text-text-secondary group-hover:text-text-primary'} transition-colors`}>
+                              {loc.name}
+                            </span>
+                          </div>
+                          <span className="text-xs px-2 py-0.5 bg-brand-light rounded-full text-text-muted font-mono">{loc.propertyCount}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
+                  {/* BHK */}
                   <div>
-                    <label className="text-sm font-semibold text-text-primary mb-2 block">BHK Config</label>
-                    <select value={bhk} onChange={e => setBhk(e.target.value)} className="select">
-                      <option value="">All BHK</option>
-                      <option value="1">1 BHK</option>
-                      <option value="2">2 BHK</option>
-                      <option value="3">3 BHK</option>
-                      <option value="4">4+ BHK</option>
-                    </select>
+                    <label className="text-sm font-semibold text-text-primary mb-2 block">BHK</label>
+                    <div className="flex flex-wrap gap-2">
+                      {bhkOptions.map(bhk => (
+                        <button
+                          key={bhk}
+                          onClick={() => setBhkFilter(bhk)}
+                          className={`pill-toggle text-xs ${bhkFilter === bhk ? 'active' : ''}`}
+                        >
+                          {bhk === 'All' ? 'All' : bhk}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="flex gap-3 pt-2">
-                    <button onClick={resetFilters} className="btn-secondary flex-1 !py-2 text-sm">
-                      Reset
+                  {hasActiveFilters && (
+                    <button onClick={clearFilters} className="btn-ghost text-sm w-full justify-center !text-brand-terracotta">
+                      <X size={14} /> Clear All Filters
                     </button>
-                  </div>
+                  )}
                 </div>
               </div>
             </aside>
 
-            {/* Mobile Filter Toggle */}
-            <div className="lg:hidden mb-4 flex items-center justify-between">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="btn-secondary !py-2 !px-4 text-sm"
-              >
-                <SlidersHorizontal size={16} />
-                Filters
-              </button>
-              <select
-                value={sortBy}
-                onChange={e => setSortBy(e.target.value)}
-                className="select !w-auto !h-10 text-sm"
-              >
-                <option value="newest">Newest First</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="area">Area: Largest</option>
-              </select>
-            </div>
-
-            {/* Property Grid */}
+            {/* Results Grid */}
             <div>
-              {/* Desktop Sort */}
-              <div className="hidden lg:flex items-center justify-between mb-6">
-                <p className="text-text-secondary text-sm">
-                  Showing <strong className="text-text-primary">{filtered.length}</strong> properties
-                </p>
-                <select
-                  value={sortBy}
-                  onChange={e => setSortBy(e.target.value)}
-                  className="select !w-auto !h-10 text-sm"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="area">Area: Largest</option>
-                </select>
-              </div>
-
-              {filtered.length === 0 ? (
-                <div className="card p-12 text-center !rounded-2xl">
-                  <Search size={48} className="text-text-muted mx-auto mb-4" />
-                  <h3 className="font-serif font-bold text-xl mb-2">No properties found</h3>
-                  <p className="text-text-secondary mb-4">The properties will be added in future.</p>
-                  <button onClick={resetFilters} className="btn-primary mx-auto">Reset Filters</button>
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="card h-[400px] bg-white animate-pulse rounded-2xl" />
+                  ))}
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="card-static p-16 text-center !rounded-2xl">
+                  <Search size={48} className="text-text-muted/30 mx-auto mb-4" />
+                  <h3 className="font-serif font-bold text-xl text-text-primary mb-2">No properties found</h3>
+                  <p className="text-text-secondary text-sm mb-6">Try adjusting your filters or browse all listings.</p>
+                  <button onClick={clearFilters} className="btn-primary">View All Properties</button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {filtered.map((property, i) => (
                     <motion.div
                       key={property.code}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
+                      transition={{ delay: Math.min(i * 0.05, 0.3) }}
                     >
-                      <div className="card group h-full flex flex-col !rounded-2xl">
+                      <div className="card group h-full flex flex-col">
                         <div className="relative overflow-hidden rounded-t-2xl" style={{ aspectRatio: '16/10' }}>
-                          <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 group-hover:scale-105 transition-transform duration-500" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Home size={40} className="text-white/40" />
+                          {property.images && property.images.length > 0 ? (
+                            <Image src={property.images[0]} alt={property.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/20 to-brand-accent/20" />
+                          )}
+                          {(!property.images || !property.images.length) && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Home size={40} className="text-white/30" />
+                            </div>
+                          )}
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-4 pt-12">
+                            <div className="font-mono font-bold text-xl text-white">{property.priceLabel}</div>
                           </div>
-                          <div className="absolute top-3 left-3">
-                            <span className={`badge ${property.badge === 'Hot Deal' ? 'badge-hot' : 'badge-sale'}`}>
+                          <div className="absolute top-3 left-3 z-10">
+                            <span className={`badge ${property.badge === 'Hot Deal' ? 'badge-hot' : property.badge === 'New' ? 'badge-new' : 'badge-featured'}`}>
                               {property.badge}
                             </span>
                           </div>
                         </div>
                         <div className="p-5 flex flex-col flex-1">
-                          <div className="font-serif font-bold text-xl text-brand-primary mb-1">{property.priceLabel}</div>
-                          <h3 className="font-semibold text-text-primary mb-2 group-hover:text-brand-primary transition-colors">{property.title}</h3>
-                          <div className="flex items-center gap-1.5 text-text-secondary text-sm mb-3">
-                            <MapPin size={14} className="text-brand-secondary" /> {property.location}
+                          <h3 className="font-sans font-semibold text-lg text-text-primary mb-2 group-hover:text-brand-secondary transition-colors">
+                            {property.title}
+                          </h3>
+                          <div className="flex items-center gap-1.5 text-text-secondary text-sm mb-4">
+                            <MapPin size={14} className="text-brand-secondary flex-shrink-0" />
+                            {property.location}
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-text-secondary border-t border-border pt-3 mb-4">
+                          <div className="flex items-center gap-3 text-sm text-text-secondary border-t border-border pt-4 mb-4">
                             <span className="flex items-center gap-1"><Bed size={14} /> {property.bhk}</span>
                             <span className="text-border">|</span>
-                            <span className="flex items-center gap-1"><Bath size={14} /> {property.bathrooms} Bath</span>
+                            <span className="flex items-center gap-1"><Bath size={14} /> {property.bathrooms}B</span>
                             <span className="text-border">|</span>
-                            <span className="flex items-center gap-1"><Maximize size={14} /> {property.area} {property.areaUnit}</span>
+                            <span className="flex items-center gap-1"><Maximize size={14} /> {property.area}{property.areaUnit}</span>
                           </div>
                           <div className="flex gap-3 mt-auto">
-                            <Link href={`/properties/${property.slug}`} className="btn-secondary flex-1 !py-2 text-sm justify-center">
+                            <Link href={`/properties/${property.slug}`} className="btn-secondary flex-1 !py-2.5 !px-4 text-sm justify-center">
                               View Details
                             </Link>
                             <a
-                              href={`https://wa.me/919376786108?text=${encodeURIComponent(`Hi! I'm interested in ${property.title} (${property.code})`)}`}
-                              target="_blank" rel="noopener noreferrer"
-                              className="btn-primary flex-1 !py-2 text-sm justify-center"
+                              href={getWhatsAppUrl(`Hi! Interested in ${property.title} (${property.code}) — ${property.priceLabel}`)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-11 h-11 rounded-full bg-[#25D366] flex items-center justify-center text-white hover:scale-110 transition-transform shrink-0"
                             >
-                              Enquire Now
+                              <MessageCircle size={16} />
                             </a>
                           </div>
                         </div>
@@ -229,17 +312,5 @@ function PropertiesContent() {
 
       <Footer />
     </main>
-  )
-}
-
-export default function PropertiesPage() {
-  return (
-    <Suspense fallback={
-      <main className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-lg">Loading properties...</div>
-      </main>
-    }>
-      <PropertiesContent />
-    </Suspense>
   )
 }

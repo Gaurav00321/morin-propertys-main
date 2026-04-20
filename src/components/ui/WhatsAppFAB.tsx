@@ -8,15 +8,15 @@ export function WhatsAppFAB() {
       href={getWhatsAppUrl()}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 group"
+      className="fixed bottom-20 lg:bottom-6 right-6 z-50 group"
       aria-label="Chat on WhatsApp"
     >
       {/* Pulse Ring */}
       <span className="absolute inset-0 rounded-full bg-[#25D366] animate-pulse-ring" />
 
       {/* Button */}
-      <div className="relative w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300">
-        <MessageCircle size={26} className="text-white" fill="white" />
+      <div className="relative w-[60px] h-[60px] rounded-full bg-[#25D366] flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300">
+        <MessageCircle size={28} className="text-white" fill="white" />
       </div>
 
       {/* Tooltip */}
