@@ -16,6 +16,7 @@ export default function ContactPage() {
   const [budgetRange, setBudgetRange] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
