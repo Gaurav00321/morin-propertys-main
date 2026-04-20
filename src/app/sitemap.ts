@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next'
-import { properties } from '@/data/properties'
+import { getProperties } from '@/data/properties'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.morinpropertys.com'
+  const properties = await getProperties()
 
   const staticPages = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 1.0 },
