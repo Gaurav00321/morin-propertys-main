@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const { email, password } = await request.json()
 
     // Credential check using environment variables
-    if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+    if (email === process.env.LOGIN_ADMIN_EMAIL && password === process.env.LOGIN_PASSWORD) {
       // Set simple authentication cookie
       cookies().set('admin_auth', 'authenticated', {
         httpOnly: true,

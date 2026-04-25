@@ -1,9 +1,11 @@
 import type { MetadataRoute } from 'next'
 import { getProperties } from '@/data/properties'
+import { getAllBlogPosts } from '@/data/blogPosts'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.morinpropertys.com'
   const properties = await getProperties()
+  const blogPosts = await getAllBlogPosts()
 
   const staticPages = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 1.0 },
@@ -20,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/post-property`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
     { url: `${baseUrl}/tools/emi-calculator`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.5 },
     { url: `${baseUrl}/careers`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.5 },
+    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.8 },
     // Locality pages
     { url: `${baseUrl}/properties/waghodia-road`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
     { url: `${baseUrl}/properties/ajwa-road`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
@@ -34,5 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  return [...staticPages, ...propertyPages]
+  const blogPages = blogPosts.map(post => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.updatedAt || post.createdAt),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
+  return [...staticPages, ...propertyPages, ...blogPages]
 }
